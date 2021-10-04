@@ -2,6 +2,8 @@ package com.sipios.refactoring.controller;
 
 import com.sipios.refactoring.UnitTest;
 import com.sipios.refactoring.date.DateTimeService;
+import com.sipios.refactoring.dto.BodyDto;
+import com.sipios.refactoring.dto.ItemDto;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -42,22 +44,22 @@ class ShoppingControllerSalesTests extends UnitTest {
     @Test
     void it_should_calculate_price_for_empty_cart_for_standard_customer_during_winter_sales() throws ParseException {
         configureSaleInJanuary();
-        String price = controller.getPrice(new Body(null, "STANDARD_CUSTOMER"));
+        String price = controller.getPrice(new BodyDto(null, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo("0");
     }
 
     @Test
     void it_should_calculate_price_for_empty_cart_for_standard_customer_during_spring_sales() throws ParseException {
         configureSaleInJune();
-        String price = controller.getPrice(new Body(null, "STANDARD_CUSTOMER"));
+        String price = controller.getPrice(new BodyDto(null, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo("0");
     }
 
     @Test
     void it_should_calculate_price_for_1_tshirt_for_standard_customer_during_winter_sales() throws ParseException {
         configureSaleInJanuary();
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", 1)
+        String price = controller.getPrice(new BodyDto(new ItemDto[]{
+            new ItemDto("TSHIRT", 1)
         }, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(Double.valueOf("30").toString());
     }
@@ -65,8 +67,8 @@ class ShoppingControllerSalesTests extends UnitTest {
     @Test
     void it_should_calculate_price_for_1_dress_for_standard_customer_during_winter_sales() throws ParseException {
         configureSaleInJanuary();
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", 1)
+        String price = controller.getPrice(new BodyDto(new ItemDto[]{
+            new ItemDto("DRESS", 1)
         }, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("50") * 0.8));
     }
@@ -74,16 +76,16 @@ class ShoppingControllerSalesTests extends UnitTest {
     @Test
     void it_should_calculate_price_for_1_jacket_for_standard_customer_during_winter_sales() throws ParseException {
         configureSaleInJanuary();
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", 1)
+        String price = controller.getPrice(new BodyDto(new ItemDto[]{
+            new ItemDto("JACKET", 1)
         }, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * 0.9));
     }
     @Test
     void it_should_calculate_price_for_1_tshirt_for_standard_customer_during_spring_sales() throws ParseException {
         configureSaleInJune();
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", 1)
+        String price = controller.getPrice(new BodyDto(new ItemDto[]{
+            new ItemDto("TSHIRT", 1)
         }, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(Double.valueOf("30").toString());
     }
@@ -91,8 +93,8 @@ class ShoppingControllerSalesTests extends UnitTest {
     @Test
     void it_should_calculate_price_for_1_dress_for_standard_customer_during_spring_sales() throws ParseException {
         configureSaleInJune();
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", 1)
+        String price = controller.getPrice(new BodyDto(new ItemDto[]{
+            new ItemDto("DRESS", 1)
         }, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("50") * 0.8));
     }
@@ -100,8 +102,8 @@ class ShoppingControllerSalesTests extends UnitTest {
     @Test
     void it_should_calculate_price_for_1_jacket_for_standard_customer_during_spring_sales() throws ParseException {
         configureSaleInJune();
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", 1)
+        String price = controller.getPrice(new BodyDto(new ItemDto[]{
+            new ItemDto("JACKET", 1)
         }, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * 0.9));
     }
