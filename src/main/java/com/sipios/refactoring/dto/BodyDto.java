@@ -5,9 +5,9 @@ public class BodyDto {
     private ItemDto[] items;
     private String type;
 
-    public BodyDto(ItemDto[] is, String t) {
-        this.items = is;
-        this.type = t;
+    public BodyDto(ItemDto[] items, String type) {
+        this.items = items;
+        this.type = type;
     }
 
     public BodyDto() {}

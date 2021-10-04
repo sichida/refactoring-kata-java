@@ -1,15 +1,18 @@
 package com.sipios.refactoring.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ItemDto {
 
     private String type;
-    private int nb;
+    @JsonProperty("nb")
+    private int quantity;
 
     public ItemDto() {}
 
     public ItemDto(String type, int quantity) {
         this.type = type;
-        this.nb = quantity;
+        this.quantity = quantity;
     }
 
     public String getType() {
@@ -20,11 +23,11 @@ public class ItemDto {
         this.type = type;
     }
 
-    public int getNb() {
-        return nb;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setNb(int nb) {
-        this.nb = nb;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

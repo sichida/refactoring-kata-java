@@ -30,10 +30,7 @@ public class ShoppingControllerMockMVCTests {
     @Test
     void it_should_calculate_cart_price() throws Exception {
         // Given
-        BodyDto bodyDto = new BodyDto(new ItemDto[]{
-            new ItemDto("TSHIRT", 1)
-        }, "STANDARD_CUSTOMER");
-        String bodyRequest = objectMapper.writeValueAsString(bodyDto);
+        String bodyRequest = "{\"type\": \"STANDARD_CUSTOMER\", \"items\":[{\"type\":\"TSHIRT\", \"nb\":1}]}";
         String expectedPrice = "30.0";
         // When
         MvcResult mvcResult = this.mockMvc.perform(
