@@ -2,7 +2,6 @@ package com.sipios.refactoring.controller;
 
 import com.sipios.refactoring.date.DateTimeService;
 import com.sipios.refactoring.dto.BodyDto;
-import com.sipios.refactoring.dto.ItemDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -46,41 +45,38 @@ public class ShoppingController {
             if (body.getItems() == null) {
                 return "0";
             }
-
-            for (int i = 0; i < body.getItems().size(); i++) {
-                ItemDto it = body.getItems().get(i);
-
-                if (it.getType().equals("TSHIRT")) {
-                    price += 30 * it.getQuantity() * discount;
-                } else if (it.getType().equals("DRESS")) {
-                    price += 50 * it.getQuantity() * discount;
-                } else if (it.getType().equals("JACKET")) {
-                    price += 100 * it.getQuantity() * discount;
-                }
-                // else if (it.getType().equals("SWEATSHIRT")) {
-                //     price += 80 * it.getNb();
-                // }
-            }
+            price = body.getItems().stream()
+                .mapToDouble(item -> {
+                    switch (item.getType()) {
+                        case "TSHIRT":
+                            return 30 * item.getQuantity() * discount;
+                        case "DRESS":
+                            return 50 * item.getQuantity() * discount;
+                        case "JACKET":
+                            return 100 * item.getQuantity() * discount;
+                        default:
+                            return 0.0;
+                    }
+                }).sum();
         } else {
             LOGGER.debug("Calculating price outside sales");
             if (body.getItems() == null) {
                 return "0";
             }
 
-            for (int i = 0; i < body.getItems().size(); i++) {
-                ItemDto it = body.getItems().get(i);
-
-                if (it.getType().equals("TSHIRT")) {
-                    price += 30 * it.getQuantity() * discount;
-                } else if (it.getType().equals("DRESS")) {
-                    price += 50 * it.getQuantity() * 0.8 * discount;
-                } else if (it.getType().equals("JACKET")) {
-                    price += 100 * it.getQuantity() * 0.9 * discount;
-                }
-                // else if (it.getType().equals("SWEATSHIRT")) {
-                //     price += 80 * it.getNb();
-                // }
-            }
+            price = body.getItems().stream()
+                .mapToDouble(item -> {
+                    switch (item.getType()) {
+                        case "TSHIRT":
+                            return 30 * item.getQuantity() * discount;
+                        case "DRESS":
+                            return 50 * item.getQuantity() * 0.8 * discount;
+                        case "JACKET":
+                            return 100 * item.getQuantity() * 0.9 * discount;
+                        default:
+                            return 0.0;
+                    }
+                }).sum();
         }
 
         try {
