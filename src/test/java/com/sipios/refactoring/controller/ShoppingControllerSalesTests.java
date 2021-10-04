@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 class ShoppingControllerSalesTests extends UnitTest {
 
@@ -25,21 +26,11 @@ class ShoppingControllerSalesTests extends UnitTest {
     DateTimeService dateTimeService;
 
     private void configureSaleInJanuary() throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
-
-        Date date = sdf.parse("2021-01-14 00:00:00");
-
-        Mockito.when(dateTimeService.now()).thenReturn(date);
+        Mockito.when(dateTimeService.isSales()).thenReturn(true);
     }
 
     private void configureSaleInJune() throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
-
-        Date date = sdf.parse("2021-06-14 00:00:00");
-
-        Mockito.when(dateTimeService.now()).thenReturn(date);
+        Mockito.when(dateTimeService.isSales()).thenReturn(true);
     }
 
     @Test

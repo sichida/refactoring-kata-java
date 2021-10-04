@@ -39,17 +39,13 @@ public class ShoppingController {
     @PostMapping
     public String getPrice(@RequestBody BodyDto body) {
         LOGGER.info("Receiving price request for {}", body);
-
-        Date date = dateTimeService.now();
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
-        cal.setTime(date);
-
+        // Calculate if sales is on
+        boolean isSales = dateTimeService.isSales();
         // Compute customerTypeDiscount for customer
         double customerTypeDiscount = calculateDiscount(body);
 
         // Compute total amount depending on the types and quantity of product and
         // if we are in winter or summer discounts periods
-        boolean isSales = isSales(cal);
         LOGGER.debug("Calculating price (sale activated: {})", isSales);
 
         LOGGER.debug("Calculating price outside sales");
@@ -116,18 +112,5 @@ public class ShoppingController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return discount;
-    }
-
-    private boolean isSales(Calendar cal) {
-        return (
-            cal.get(Calendar.DAY_OF_MONTH) < 15 &&
-                cal.get(Calendar.DAY_OF_MONTH) > 5 &&
-                cal.get(Calendar.MONTH) == Calendar.JUNE
-        ) ||
-            (
-                cal.get(Calendar.DAY_OF_MONTH) < 15 &&
-                    cal.get(Calendar.DAY_OF_MONTH) > 5 &&
-                    cal.get(Calendar.MONTH) == Calendar.JANUARY
-            );
     }
 }

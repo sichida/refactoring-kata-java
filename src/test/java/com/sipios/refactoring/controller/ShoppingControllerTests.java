@@ -26,7 +26,7 @@ class ShoppingControllerTests extends UnitTest {
 
     @BeforeEach
     public void setUp() {
-        Mockito.when(dateTimeService.now()).thenReturn(new Date());
+        Mockito.when(dateTimeService.isSales()).thenReturn(false);
     }
 
     @Test
