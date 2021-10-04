@@ -1,66 +1,61 @@
 package com.sipios.refactoring.controller;
 
 import com.sipios.refactoring.UnitTest;
-import org.junit.jupiter.api.Assertions;
+import com.sipios.refactoring.date.DateTimeService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.springframework.web.server.ResponseStatusException;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ShoppingControllerTests extends UnitTest {
+class ShoppingControllerSalesTests extends UnitTest {
 
     @InjectMocks
     private ShoppingController controller;
+    @Mock
+    DateTimeService dateTimeService;
 
-    @Test
-    void it_should_support_standard_customer() {
-        Assertions.assertDoesNotThrow(
-            () -> controller.getPrice(new Body(new Item[]{}, "STANDARD_CUSTOMER"))
-        );
+    private void configureSaleInJanuary() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
+
+        Date date = sdf.parse("2021-01-14 00:00:00");
+
+        Mockito.when(dateTimeService.now()).thenReturn(date);
+    }
+
+    private void configureSaleInJune() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
+
+        Date date = sdf.parse("2021-06-14 00:00:00");
+
+        Mockito.when(dateTimeService.now()).thenReturn(date);
     }
 
     @Test
-    void it_should_support_premium_customer() {
-        Assertions.assertDoesNotThrow(
-            () -> controller.getPrice(new Body(new Item[]{}, "PREMIUM_CUSTOMER"))
-        );
-    }
-
-    @Test
-    void it_should_support_platinum_customer() {
-        Assertions.assertDoesNotThrow(
-            () -> controller.getPrice(new Body(new Item[]{}, "PLATINUM_CUSTOMER"))
-        );
-    }
-
-    @Test
-    void it_should_not_support_unknown_type_of_customer() {
-        Assertions.assertThrows(ResponseStatusException.class,
-            () -> controller.getPrice(new Body(new Item[]{}, "CUSTOM_CUSTOMER"))
-        );
-    }
-
-    @Test
-    void it_should_calculate_price_for_empty_cart_for_standard_customer_outside_sales() {
+    void it_should_calculate_price_for_empty_cart_for_standard_customer_during_winter_sales() throws ParseException {
+        configureSaleInJanuary();
         String price = controller.getPrice(new Body(null, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo("0");
     }
 
     @Test
-    void it_should_calculate_price_for_empty_cart_for_premium_customer_outside_sales() {
-        String price = controller.getPrice(new Body(null, "PREMIUM_CUSTOMER"));
+    void it_should_calculate_price_for_empty_cart_for_standard_customer_during_spring_sales() throws ParseException {
+        configureSaleInJune();
+        String price = controller.getPrice(new Body(null, "STANDARD_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo("0");
     }
 
     @Test
-    void it_should_calculate_price_for_empty_cart_for_platinum_customer_outside_sales() {
-        String price = controller.getPrice(new Body(null, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo("0");
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_tshirt_for_standard_customer_outside_sales() {
+    void it_should_calculate_price_for_1_tshirt_for_standard_customer_during_winter_sales() throws ParseException {
+        configureSaleInJanuary();
         String price = controller.getPrice(new Body(new Item[]{
             new Item("TSHIRT", 1)
         }, "STANDARD_CUSTOMER"));
@@ -68,191 +63,8 @@ class ShoppingControllerTests extends UnitTest {
     }
 
     @Test
-    void it_should_calculate_price_for_1_dress_for_standard_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", 1)
-        }, "STANDARD_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("50").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_jacket_for_standard_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", 1)
-        }, "STANDARD_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("100").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_tshirt_for_premium_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", 1)
-        }, "PREMIUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("27").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_dress_for_premium_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", 1)
-        }, "PREMIUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("45").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_jacket_for_premium_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", 1)
-        }, "PREMIUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("90").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_tshirt_for_platinum_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", 1)
-        }, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("15").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_dress_for_platinum_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", 1)
-        }, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("25").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_jacket_for_platinum_customer_outside_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", 1)
-        }, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("50").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_multiple_tshirt_for_standard_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", quantity)
-        }, "STANDARD_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("30") * quantity));
-    }
-
-    @Test
-    void it_should_calculate_price_for_multiple_dress_for_standard_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", quantity)
-        }, "STANDARD_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("50") * quantity));
-    }
-
-    @Test
-    void it_should_calculate_price_for_multiple_jacket_for_standard_customer_outside_sales() {
-        int quantity = 2;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", quantity)
-        }, "STANDARD_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * quantity));
-    }
-
-    @Test
-    void it_should_calculate_price_for_mulitple_tshirt_for_premium_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", quantity)
-        }, "PREMIUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("30") * quantity * 0.9));
-    }
-
-    @Test
-    void it_should_calculate_price_for_mulitple_dress_for_premium_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", quantity)
-        }, "PREMIUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("50") * quantity * 0.9));
-    }
-
-    @Test
-    void it_should_calculate_price_for_multiple_jacket_for_premium_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", quantity)
-        }, "PREMIUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * quantity * 0.9));
-    }
-
-    @Test
-    void it_should_calculate_price_for_mulitple_tshirt_for_platinum_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", quantity)
-        }, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("30") * quantity * 0.5));
-    }
-
-    @Test
-    void it_should_calculate_price_for_multiple_dress_for_platinum_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("DRESS", quantity)
-        }, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("50") * quantity * 0.5));
-    }
-
-    @Test
-    void it_should_calculate_price_for_multiple_jacket_for_platinum_customer_outside_sales() {
-        int quantity = 3;
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("JACKET", quantity)
-        }, "PLATINUM_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * quantity * 0.5));
-    }
-
-    @Test
-    void it_should_prevent_standard_customer_to_buy_expensive_stuff() {
-        int quantity = 3;
-        Assertions.assertThrows(Exception.class,
-            () -> controller.getPrice(new Body(new Item[]{
-                new Item("JACKET", quantity)
-            }, "STANDARD_CUSTOMER"))
-        );
-    }
-
-    @Test
-    void it_should_prevent_premium_customer_to_buy_expensive_stuff() {
-        int quantity = 9;
-        Assertions.assertThrows(Exception.class,
-            () -> controller.getPrice(new Body(new Item[]{
-                new Item("JACKET", quantity)
-            }, "PREMIUM_CUSTOMER"))
-        );
-    }
-
-    @Test
-    void it_should_prevent_platinum_customer_to_buy_expensive_stuff() {
-        int quantity = 41;
-        Assertions.assertThrows(Exception.class,
-            () -> controller.getPrice(new Body(new Item[]{
-                new Item("JACKET", quantity)
-            }, "PLATINUM_CUSTOMER"))
-        );
-    }
-
-    // Sales
-    @Test
-    void it_should_calculate_price_for_1_tshirt_for_standard_customer_during_sales() {
-        String price = controller.getPrice(new Body(new Item[]{
-            new Item("TSHIRT", 1)
-        }, "STANDARD_CUSTOMER"));
-        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("30").toString());
-    }
-
-    @Test
-    void it_should_calculate_price_for_1_dress_for_standard_customer_during_sales() {
+    void it_should_calculate_price_for_1_dress_for_standard_customer_during_winter_sales() throws ParseException {
+        configureSaleInJanuary();
         String price = controller.getPrice(new Body(new Item[]{
             new Item("DRESS", 1)
         }, "STANDARD_CUSTOMER"));
@@ -260,7 +72,34 @@ class ShoppingControllerTests extends UnitTest {
     }
 
     @Test
-    void it_should_calculate_price_for_1_jacket_for_standard_customer_during_sales() {
+    void it_should_calculate_price_for_1_jacket_for_standard_customer_during_winter_sales() throws ParseException {
+        configureSaleInJanuary();
+        String price = controller.getPrice(new Body(new Item[]{
+            new Item("JACKET", 1)
+        }, "STANDARD_CUSTOMER"));
+        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * 0.9));
+    }
+    @Test
+    void it_should_calculate_price_for_1_tshirt_for_standard_customer_during_spring_sales() throws ParseException {
+        configureSaleInJune();
+        String price = controller.getPrice(new Body(new Item[]{
+            new Item("TSHIRT", 1)
+        }, "STANDARD_CUSTOMER"));
+        assertThat(price).isNotBlank().isEqualTo(Double.valueOf("30").toString());
+    }
+
+    @Test
+    void it_should_calculate_price_for_1_dress_for_standard_customer_during_spring_sales() throws ParseException {
+        configureSaleInJune();
+        String price = controller.getPrice(new Body(new Item[]{
+            new Item("DRESS", 1)
+        }, "STANDARD_CUSTOMER"));
+        assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("50") * 0.8));
+    }
+
+    @Test
+    void it_should_calculate_price_for_1_jacket_for_standard_customer_during_spring_sales() throws ParseException {
+        configureSaleInJune();
         String price = controller.getPrice(new Body(new Item[]{
             new Item("JACKET", 1)
         }, "STANDARD_CUSTOMER"));

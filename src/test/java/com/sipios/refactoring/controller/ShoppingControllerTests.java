@@ -1,10 +1,16 @@
 package com.sipios.refactoring.controller;
 
 import com.sipios.refactoring.UnitTest;
+import com.sipios.refactoring.date.DateTimeService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,6 +18,13 @@ class ShoppingControllerTests extends UnitTest {
 
     @InjectMocks
     private ShoppingController controller;
+    @Mock
+    DateTimeService dateTimeService;
+
+    @BeforeEach
+    public void setUp() {
+        Mockito.when(dateTimeService.now()).thenReturn(new Date());
+    }
 
     @Test
     void it_should_support_standard_customer() {
@@ -210,5 +223,35 @@ class ShoppingControllerTests extends UnitTest {
             new Item("JACKET", quantity)
         }, "PLATINUM_CUSTOMER"));
         assertThat(price).isNotBlank().isEqualTo(String.valueOf(Double.parseDouble("100") * quantity * 0.5));
+    }
+
+    @Test
+    void it_should_prevent_standard_customer_to_buy_expensive_stuff() {
+        int quantity = 3;
+        Assertions.assertThrows(Exception.class,
+            () -> controller.getPrice(new Body(new Item[]{
+                new Item("JACKET", quantity)
+            }, "STANDARD_CUSTOMER"))
+        );
+    }
+
+    @Test
+    void it_should_prevent_premium_customer_to_buy_expensive_stuff() {
+        int quantity = 9;
+        Assertions.assertThrows(Exception.class,
+            () -> controller.getPrice(new Body(new Item[]{
+                new Item("JACKET", quantity)
+            }, "PREMIUM_CUSTOMER"))
+        );
+    }
+
+    @Test
+    void it_should_prevent_platinum_customer_to_buy_expensive_stuff() {
+        int quantity = 41;
+        Assertions.assertThrows(Exception.class,
+            () -> controller.getPrice(new Body(new Item[]{
+                new Item("JACKET", quantity)
+            }, "PLATINUM_CUSTOMER"))
+        );
     }
 }

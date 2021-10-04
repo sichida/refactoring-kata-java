@@ -3,6 +3,8 @@ package com.sipios.refactoring.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import com.sipios.refactoring.date.DateTimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,13 +19,18 @@ import org.springframework.web.server.ResponseStatusException;
 public class ShoppingController {
 
     private Logger logger = LoggerFactory.getLogger(ShoppingController.class);
+    private final DateTimeService dateTimeService;
+
+    public ShoppingController(DateTimeService dateTimeService) {
+        this.dateTimeService = dateTimeService;
+    }
 
     @PostMapping
     public String getPrice(@RequestBody Body b) {
         double p = 0;
         double d;
 
-        Date date = new Date();
+        Date date = dateTimeService.now();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
         cal.setTime(date);
 
