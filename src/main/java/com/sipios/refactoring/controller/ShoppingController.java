@@ -1,9 +1,5 @@
 package com.sipios.refactoring.controller;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.sipios.refactoring.date.DateTimeService;
 import com.sipios.refactoring.dto.BodyDto;
 import com.sipios.refactoring.dto.ItemDto;
@@ -15,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/shopping")
@@ -31,37 +31,17 @@ public class ShoppingController {
     public String getPrice(@RequestBody BodyDto body) {
         LOGGER.info("Receiving price request for {}", body);
         double price = 0;
-        double discount;
 
         Date date = dateTimeService.now();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
         cal.setTime(date);
 
         // Compute discount for customer
-        if (body.getType().equals("STANDARD_CUSTOMER")) {
-            discount = 1;
-        } else if (body.getType().equals("PREMIUM_CUSTOMER")) {
-            discount = 0.9;
-        } else if (body.getType().equals("PLATINUM_CUSTOMER")) {
-            discount = 0.5;
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        double discount = calculateDiscount(body);
 
         // Compute total amount depending on the types and quantity of product and
         // if we are in winter or summer discounts periods
-        if (
-            !(
-                cal.get(Calendar.DAY_OF_MONTH) < 15 &&
-                cal.get(Calendar.DAY_OF_MONTH) > 5 &&
-                cal.get(Calendar.MONTH) == 5
-            ) &&
-            !(
-                cal.get(Calendar.DAY_OF_MONTH) < 15 &&
-                cal.get(Calendar.DAY_OF_MONTH) > 5 &&
-                cal.get(Calendar.MONTH) == 0
-            )
-        ) {
+        if (IsSales(cal)) {
             LOGGER.debug("Calculating price during sales");
             if (body.getItems() == null) {
                 return "0";
@@ -126,5 +106,32 @@ public class ShoppingController {
         }
 
         return String.valueOf(price);
+    }
+
+    private double calculateDiscount(BodyDto body) {
+        double discount;
+        if (body.getType().equals("STANDARD_CUSTOMER")) {
+            discount = 1;
+        } else if (body.getType().equals("PREMIUM_CUSTOMER")) {
+            discount = 0.9;
+        } else if (body.getType().equals("PLATINUM_CUSTOMER")) {
+            discount = 0.5;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return discount;
+    }
+
+    private boolean IsSales(Calendar cal) {
+        return !(
+            cal.get(Calendar.DAY_OF_MONTH) < 15 &&
+                cal.get(Calendar.DAY_OF_MONTH) > 5 &&
+                cal.get(Calendar.MONTH) == 5
+        ) &&
+            !(
+                cal.get(Calendar.DAY_OF_MONTH) < 15 &&
+                    cal.get(Calendar.DAY_OF_MONTH) > 5 &&
+                    cal.get(Calendar.MONTH) == 0
+            );
     }
 }
