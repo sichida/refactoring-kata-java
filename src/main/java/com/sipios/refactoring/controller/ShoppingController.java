@@ -47,8 +47,8 @@ public class ShoppingController {
                 return "0";
             }
 
-            for (int i = 0; i < body.getItems().length; i++) {
-                ItemDto it = body.getItems()[i];
+            for (int i = 0; i < body.getItems().size(); i++) {
+                ItemDto it = body.getItems().get(i);
 
                 if (it.getType().equals("TSHIRT")) {
                     price += 30 * it.getQuantity() * discount;
@@ -67,8 +67,8 @@ public class ShoppingController {
                 return "0";
             }
 
-            for (int i = 0; i < body.getItems().length; i++) {
-                ItemDto it = body.getItems()[i];
+            for (int i = 0; i < body.getItems().size(); i++) {
+                ItemDto it = body.getItems().get(i);
 
                 if (it.getType().equals("TSHIRT")) {
                     price += 30 * it.getQuantity() * discount;

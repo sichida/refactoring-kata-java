@@ -1,18 +1,17 @@
 package com.sipios.refactoring.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
     private String type;
     @JsonProperty("nb")
     private int quantity;
-
-    public ItemDto(String type, int quantity) {
-        this.type = type;
-        this.quantity = quantity;
-    }
 }
