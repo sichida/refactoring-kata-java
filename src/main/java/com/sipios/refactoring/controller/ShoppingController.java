@@ -29,7 +29,6 @@ public class ShoppingController {
     @PostMapping
     public String getPrice(@RequestBody BodyDto body) {
         LOGGER.info("Receiving price request for {}", body);
-        double price = 0;
 
         Date date = dateTimeService.now();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
@@ -45,60 +44,64 @@ public class ShoppingController {
             if (body.getItems() == null) {
                 return "0";
             }
-            price = body.getItems().stream()
-                .mapToDouble(item -> {
-                    switch (item.getType()) {
-                        case "TSHIRT":
-                            return 30 * item.getQuantity() * discount;
-                        case "DRESS":
-                            return 50 * item.getQuantity() * discount;
-                        case "JACKET":
-                            return 100 * item.getQuantity() * discount;
-                        default:
-                            return 0.0;
-                    }
-                }).sum();
+            return validatePriceAndReturn(
+                body.getType(),
+                body.getItems().stream()
+                    .mapToDouble(item -> {
+                        switch (item.getType()) {
+                            case "TSHIRT":
+                                return 30 * item.getQuantity() * discount;
+                            case "DRESS":
+                                return 50 * item.getQuantity() * discount;
+                            case "JACKET":
+                                return 100 * item.getQuantity() * discount;
+                            default:
+                                return 0.0;
+                        }
+                    }).sum()
+            );
         } else {
             LOGGER.debug("Calculating price outside sales");
             if (body.getItems() == null) {
                 return "0";
             }
 
-            price = body.getItems().stream()
-                .mapToDouble(item -> {
-                    switch (item.getType()) {
-                        case "TSHIRT":
-                            return 30 * item.getQuantity() * discount;
-                        case "DRESS":
-                            return 50 * item.getQuantity() * 0.8 * discount;
-                        case "JACKET":
-                            return 100 * item.getQuantity() * 0.9 * discount;
-                        default:
-                            return 0.0;
-                    }
-                }).sum();
+            return validatePriceAndReturn(
+                body.getType(),
+                body.getItems().stream()
+                    .mapToDouble(item -> {
+                        switch (item.getType()) {
+                            case "TSHIRT":
+                                return 30 * item.getQuantity() * discount;
+                            case "DRESS":
+                                return 50 * item.getQuantity() * 0.8 * discount;
+                            case "JACKET":
+                                return 100 * item.getQuantity() * 0.9 * discount;
+                            default:
+                                return 0.0;
+                        }
+                    }).sum()
+            );
         }
+    }
 
-        try {
-            if (body.getType().equals("STANDARD_CUSTOMER")) {
-                if (price > 200) {
-                    throw new Exception("Price (" + price + ") is too high for standard customer");
-                }
-            } else if (body.getType().equals("PREMIUM_CUSTOMER")) {
+    private String validatePriceAndReturn(String type, double price) {
+        switch (type) {
+            case "PREMIUM_CUSTOMER":
                 if (price > 800) {
-                    throw new Exception("Price (" + price + ") is too high for premium customer");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price (" + price + ") is too high for premium customer");
                 }
-            } else if (body.getType().equals("PLATINUM_CUSTOMER")) {
+                break;
+            case "PLATINUM_CUSTOMER":
                 if (price > 2000) {
-                    throw new Exception("Price (" + price + ") is too high for platinum customer");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price (" + price + ") is too high for platinum customer");
                 }
-            } else {
+                break;
+            default:
                 if (price > 200) {
-                    throw new Exception("Price (" + price + ") is too high for standard customer");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price (" + price + ") is too high for standard customer");
                 }
-            }
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+                break;
         }
 
         return String.valueOf(price);
@@ -106,14 +109,18 @@ public class ShoppingController {
 
     private double calculateDiscount(BodyDto body) {
         double discount;
-        if (body.getType().equals("STANDARD_CUSTOMER")) {
-            discount = 1;
-        } else if (body.getType().equals("PREMIUM_CUSTOMER")) {
-            discount = 0.9;
-        } else if (body.getType().equals("PLATINUM_CUSTOMER")) {
-            discount = 0.5;
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        switch (body.getType()) {
+            case "STANDARD_CUSTOMER":
+                discount = 1;
+                break;
+            case "PREMIUM_CUSTOMER":
+                discount = 0.9;
+                break;
+            case "PLATINUM_CUSTOMER":
+                discount = 0.5;
+                break;
+            default:
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return discount;
     }
