@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 public class BodyDto {
     private List<ItemDto> items;
-    private String type;
+    private CustomerTypeDto type;
 }

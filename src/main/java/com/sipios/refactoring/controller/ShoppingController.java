@@ -2,6 +2,7 @@ package com.sipios.refactoring.controller;
 
 import com.sipios.refactoring.date.DateTimeService;
 import com.sipios.refactoring.dto.BodyDto;
+import com.sipios.refactoring.dto.CustomerTypeDto;
 import com.sipios.refactoring.dto.ItemDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,14 +73,14 @@ public class ShoppingController {
         }
     }
 
-    private String validatePriceAndReturn(String type, double price) {
+    private String validatePriceAndReturn(CustomerTypeDto type, double price) {
         switch (type) {
-            case "PREMIUM_CUSTOMER":
+            case PREMIUM_CUSTOMER:
                 if (price > 800) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price (" + price + ") is too high for premium customer");
                 }
                 break;
-            case "PLATINUM_CUSTOMER":
+            case PLATINUM_CUSTOMER:
                 if (price > 2000) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price (" + price + ") is too high for platinum customer");
                 }
@@ -97,13 +98,13 @@ public class ShoppingController {
     private double calculateDiscount(BodyDto body) {
         double discount;
         switch (body.getType()) {
-            case "STANDARD_CUSTOMER":
+            case STANDARD_CUSTOMER:
                 discount = STANDARD_CUSTOMER_PRICE_RATE;
                 break;
-            case "PREMIUM_CUSTOMER":
+            case PREMIUM_CUSTOMER:
                 discount = PREMIUM_CUSTOMER_PRICE_RATE;
                 break;
-            case "PLATINUM_CUSTOMER":
+            case PLATINUM_CUSTOMER:
                 discount = PLATINUM_CUSTOMER_PRICE_RATE;
                 break;
             default:
