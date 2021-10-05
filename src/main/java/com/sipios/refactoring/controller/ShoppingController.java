@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.TimeZone;
 
 @RestController
@@ -24,9 +25,9 @@ public class ShoppingController {
     public static final int TSHIRT_PRICE = 30;
     public static final int DRESS_PRICE = 50;
     public static final int JACKET_PRICE = 100;
-    public static final int STANDARD_CUSTOMER_PRICE_RATE = 1;
-    public static final double PREMIUM_CUSTOMER_PRICE_RATE = 0.9;
-    public static final double PLATINUM_CUSTOMER_PRICE_RATE = 0.5;
+    public static final Double STANDARD_CUSTOMER_PRICE_RATE = 1.0;
+    public static final Double PREMIUM_CUSTOMER_PRICE_RATE = 0.9;
+    public static final Double PLATINUM_CUSTOMER_PRICE_RATE = 0.5;
     public static final double SALE_TSHIRT_DISCOUNT = 1.0;
     public static final double SALE_DRESS_DISCOUNT = 0.8;
     public static final double SALE_JACKET_DISCOUNT = 0.9;
@@ -42,8 +43,6 @@ public class ShoppingController {
         LOGGER.info("Receiving price request for {}", body);
         // Calculate if sales is on
         boolean isSales = dateTimeService.isSales();
-        // Compute customerTypeDiscount for customer
-        double customerTypeDiscount = calculateDiscount(body);
 
         // Compute total amount depending on the types and quantity of product and
         // if we are in winter or summer discounts periods
@@ -52,12 +51,13 @@ public class ShoppingController {
             return "0";
         }
 
-        return validatePriceAndReturn(
-            body.getType(),
-            body.getItems().stream()
-                .mapToDouble(item -> calculatePrice(customerTypeDiscount, isSales, item)).sum()
-        );
-
+        // Compute customerTypeDiscount for customer
+        return calculateDiscount(body)
+            .map(customerTypeDiscount -> body.getItems().stream()
+                .mapToDouble(item -> calculatePrice(customerTypeDiscount, isSales, item))
+                .sum())
+            .map(price -> validatePriceAndReturn(body.getType(), price))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
     }
 
     private double calculatePrice(double customerTypeDiscount, boolean isSale, ItemDto item) {
@@ -95,21 +95,16 @@ public class ShoppingController {
         return String.valueOf(price);
     }
 
-    private double calculateDiscount(BodyDto body) {
-        double discount;
+    private Optional<Double> calculateDiscount(BodyDto body) {
         switch (body.getType()) {
             case STANDARD_CUSTOMER:
-                discount = STANDARD_CUSTOMER_PRICE_RATE;
-                break;
+                return Optional.of(STANDARD_CUSTOMER_PRICE_RATE);
             case PREMIUM_CUSTOMER:
-                discount = PREMIUM_CUSTOMER_PRICE_RATE;
-                break;
+                return  Optional.of(PREMIUM_CUSTOMER_PRICE_RATE);
             case PLATINUM_CUSTOMER:
-                discount = PLATINUM_CUSTOMER_PRICE_RATE;
-                break;
+                return Optional.of(PLATINUM_CUSTOMER_PRICE_RATE);
             default:
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                return Optional.empty();
         }
-        return discount;
     }
 }
