@@ -18,6 +18,7 @@ import java.util.List;
 import static com.sipios.refactoring.dto.CustomerTypeDto.*;
 import static com.sipios.refactoring.dto.ItemTypeDto.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ShoppingControllerTests extends UnitTest {
 
@@ -256,30 +257,30 @@ class ShoppingControllerTests extends UnitTest {
     @Test
     void it_should_prevent_standard_customer_to_buy_expensive_stuff() {
         int quantity = 3;
-        Assertions.assertThrows(Exception.class,
-            () -> controller.getPrice(new BodyDto(List.of(
-                new ItemDto(JACKET, quantity)
-            ), STANDARD_CUSTOMER))
-        );
+        assertThatThrownBy(() -> controller.getPrice(new BodyDto(List.of(
+            new ItemDto(JACKET, quantity)
+        ), STANDARD_CUSTOMER)))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Price (300.0) is too high for standard customer");
     }
 
     @Test
     void it_should_prevent_premium_customer_to_buy_expensive_stuff() {
         int quantity = 9;
-        Assertions.assertThrows(Exception.class,
-            () -> controller.getPrice(new BodyDto(List.of(
+        assertThatThrownBy(() -> controller.getPrice(new BodyDto(List.of(
                 new ItemDto(JACKET, quantity)
-            ), PREMIUM_CUSTOMER))
-        );
+            ), PREMIUM_CUSTOMER)))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Price (810.0) is too high for premium customer");
     }
 
     @Test
     void it_should_prevent_platinum_customer_to_buy_expensive_stuff() {
         int quantity = 41;
-        Assertions.assertThrows(Exception.class,
-            () -> controller.getPrice(new BodyDto(List.of(
-                new ItemDto(JACKET, quantity)
-            ), PLATINUM_CUSTOMER))
-        );
+        assertThatThrownBy(() -> controller.getPrice(new BodyDto(List.of(
+            new ItemDto(JACKET, quantity)
+        ), PLATINUM_CUSTOMER)))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Price (2050.0) is too high for platinum customer");
     }
 }

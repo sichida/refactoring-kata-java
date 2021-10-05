@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/shopping")
@@ -56,7 +53,8 @@ public class ShoppingController {
             .map(customerTypeDiscount -> body.getItems().stream()
                 .mapToDouble(item -> calculatePrice(customerTypeDiscount, isSales, item))
                 .sum())
-            .map(price -> validatePriceAndReturn(body.getType(), price))
+            .map(price -> validate(body.getType(), price))
+            .map(String::valueOf)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
     }
 
@@ -73,7 +71,7 @@ public class ShoppingController {
         }
     }
 
-    private String validatePriceAndReturn(CustomerTypeDto type, double price) {
+    private Double validate(CustomerTypeDto type, Double price) {
         switch (type) {
             case PREMIUM_CUSTOMER:
                 if (price > 800) {
@@ -92,7 +90,7 @@ public class ShoppingController {
                 break;
         }
         LOGGER.debug("Price is {}", price);
-        return String.valueOf(price);
+        return price;
     }
 
     private Optional<Double> calculateDiscount(BodyDto body) {
