@@ -47,8 +47,6 @@ public class ShoppingController {
         // Compute total amount depending on the types and quantity of product and
         // if we are in winter or summer discounts periods
         LOGGER.debug("Calculating price (sale activated: {})", isSales);
-
-        LOGGER.debug("Calculating price outside sales");
         if (body.getItems() == null) {
             return "0";
         }
@@ -63,11 +61,11 @@ public class ShoppingController {
 
     private double calculatePrice(double customerTypeDiscount, boolean isSale, ItemDto item) {
         switch (item.getType()) {
-            case "TSHIRT":
+            case TSHIRT:
                 return TSHIRT_PRICE * item.getQuantity() * (isSale ? SALE_TSHIRT_DISCOUNT : 1.0) * customerTypeDiscount;
-            case "DRESS":
+            case DRESS:
                 return DRESS_PRICE * item.getQuantity() * (isSale ? SALE_DRESS_DISCOUNT : 1.0) * customerTypeDiscount;
-            case "JACKET":
+            case JACKET:
                 return JACKET_PRICE * item.getQuantity() * (isSale ? SALE_JACKET_DISCOUNT : 1.0) * customerTypeDiscount;
             default:
                 return 0.0;
@@ -92,7 +90,7 @@ public class ShoppingController {
                 }
                 break;
         }
-
+        LOGGER.debug("Price is {}", price);
         return String.valueOf(price);
     }
 

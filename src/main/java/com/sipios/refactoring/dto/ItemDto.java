@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDto {
-    private String type;
+    private ItemTypeDto type;
     @JsonProperty("nb")
     private int quantity;
 }

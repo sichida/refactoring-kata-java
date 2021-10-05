@@ -28,10 +28,48 @@ public class ShoppingControllerMockMVCTests {
     private ObjectMapper objectMapper;
 
     @Test
-    void it_should_calculate_cart_price() throws Exception {
+    void it_should_calculate_cart_price_for_tshirt() throws Exception {
         // Given
         String bodyRequest = "{\"type\": \"STANDARD_CUSTOMER\", \"items\":[{\"type\":\"TSHIRT\", \"nb\":1}]}";
         String expectedPrice = "30.0";
+        // When
+        MvcResult mvcResult = this.mockMvc.perform(
+                post("/shopping")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(bodyRequest)
+            )
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(status().isOk())
+            .andReturn();
+        // Then
+        String actualResponseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualToIgnoringWhitespace(expectedPrice);
+    }
+
+    @Test
+    void it_should_calculate_cart_price_for_dress() throws Exception {
+        // Given
+        String bodyRequest = "{\"type\": \"STANDARD_CUSTOMER\", \"items\":[{\"type\":\"DRESS\", \"nb\":1}]}";
+        String expectedPrice = "50.0";
+        // When
+        MvcResult mvcResult = this.mockMvc.perform(
+                post("/shopping")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(bodyRequest)
+            )
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(status().isOk())
+            .andReturn();
+        // Then
+        String actualResponseBody = mvcResult.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualToIgnoringWhitespace(expectedPrice);
+    }
+
+    @Test
+    void it_should_calculate_cart_price_for_jacket() throws Exception {
+        // Given
+        String bodyRequest = "{\"type\": \"STANDARD_CUSTOMER\", \"items\":[{\"type\":\"JACKET\", \"nb\":1}]}";
+        String expectedPrice = "100.0";
         // When
         MvcResult mvcResult = this.mockMvc.perform(
                 post("/shopping")
